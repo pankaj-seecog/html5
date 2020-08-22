@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <script>
+      function getLocation() {
+        if (navigator.geolocation !== "undefined") {
+          console.log("browser supports the geolocation feature");
+          navigator.geolocation.getCurrentPosition(function (pos) {
+            console.log("Current position latitude is ", pos.coords.latitude);
+            document.getElementById("latId").innerHTML = pos.coords.latitude;
+            console.log(
+              "Current position longitiude is ",
+              pos.coords.longitude
+            );
+            document.getElementById("longId").innerHTML = pos.coords.latitude;
+          });
+        } else {
+          console.log("Browser does not support geolocation");
+        }
+      }
+    </script>
+  </head>
+  <body>
+    Latitude : <span id="latId"></span> <br />
+    Longitude : <span id="longId"></span>
+    <hr />
+    <button onclick="getLocation()">Get Location</button>
+  </body>
+</html>

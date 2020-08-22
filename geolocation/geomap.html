@@ -1,0 +1,42 @@
+<html>
+  <head>
+    
+    <script>
+      var map,infoWindow;
+      function showPosition() {
+        // map = new google.maps.Map(document.getElementById("map"), {
+        //   center: { lat: -34.397, lng: 150.644 },
+        //   zoom: 6,
+        // });
+        // infoWindow = new google.maps.InfoWindow();
+
+        if (navigator.geolocation !== "undefined") {
+          console.log("Browser supports the geolocation feature!");
+          navigator.geolocation.getCurrentPosition(function (pos) {
+            var lat = pos.coords.latitude;
+            var long = pos.coords.longitude;
+            var latLong = lat + "," + long;
+            var posi = {
+                lat : lat,
+                lng : long
+            } 
+            var mapLink = "https://maps.googleapis.com/maps/api/staticmap?center="+latLong+"&zoom=16&size=400x300&output=embed";
+            // infoWindow.showPosition(posi);
+            // infoWindow.open(map);
+            // map.setCenter(posi);
+            document.getElementById("map").innerHTML=`
+<img src=${mapLink}/> 
+            `;
+          });
+        } else {
+          console.log("Browser does not supports the geolocation feature!");
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+    <br />
+    <button onclick="showPosition()">Show Location on map</button>
+  </body>
+</html>
