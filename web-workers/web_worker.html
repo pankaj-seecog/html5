@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<body>
+<p>
+The count is <span id="showi"></span>
+</p>
+<p>
+<button onclick="startWorker()">Start Worker</button><br>
+<button onclick="stopWorker()">Stop Worker</button>
+</p>
+</body>
+<script>
+var w;
+function startWorker(){
+
+if(typeof(Worker) !== 'undefined')
+{
+if(typeof(w) == 'undefined')
+{
+w = new Worker('web_worker.js');
+}
+w.onmessage = function(event){
+document.getElementById('showi').innerHTML = event.data;
+}
+}
+else
+{
+alert('Web worker not present');
+}
+}
+
+function stopWorker(){
+w.terminate();
+}
+
+</script>
+</html>
