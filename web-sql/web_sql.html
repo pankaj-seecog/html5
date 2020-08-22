@@ -1,0 +1,176 @@
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="form-group">
+        <h1>Student List</h1>
+      </div>
+      <div class="form-group">
+        <label for="name">Name : </label>
+        <input class="form-control" id="student_name" />
+      </div>
+      <div class="form-group">
+        <label for="name">Section : </label>
+        <input type="number" class="form-control" id="student_section" />
+      </div>
+      <div class="form-group">
+        <label for="name">Image : </label>
+        <input type="url" class="form-control" id="student_pic" />
+      </div>
+      <div class="form-group">
+        <button class="btn btn-sm btn-success" onClick="addStudent()">
+          Add Student
+        </button>
+      </div>
+
+      <hr />
+      <table class="table" id="studentTable">
+        <th>Image</th>
+        <th>Name</th>
+        <th>Section</th>
+      </table>
+    </div>
+
+    <script>
+      var db = openDatabase(
+        "seecog",
+        "1.0",
+        "Seecog student details",
+        2 * 1024 * 1024,
+        function () {
+          console.log("Db created");
+        }
+      );
+      //creating the transaction object
+      db.transaction(function (tcx) {
+        //tcx is transaction object
+        tcx.executeSql(
+          "create table if not exists students (name,section,img) "
+        );
+        list();
+      });
+
+      function removeRecord(name) {
+        db.transaction(function (tsx) {
+          console.log("%% ", name);
+          tsx.executeSql("delete from students where name='" + name + "'");
+          console.log("Finally Record removed!");
+        });
+        clear();
+        
+      }
+
+      function addStudent() {
+        // alert("adding the student!");
+        var student_name = document.getElementById("student_name").value;
+        var student_section = document.getElementById("student_section").value;
+        var student_pic = document.getElementById("student_pic").value;
+        console.log(student_name, student_section, student_pic);
+        db.transaction(function (tsx) {
+          tsx.executeSql(
+            "insert into students (name,section,img) values (?,?,?)",
+            [student_name, student_section, student_pic]
+          );
+          console.log("Record inserted !");
+          clearFields();
+          clear();
+        });
+      }
+
+      function addRow(student_name, student_section, student_pic) {
+        var tab = document.getElementById("studentTable");
+        //create row element start
+        var rowEle = document.createElement("tr");
+        var tdEleImg = document.createElement("td");
+        tdEleImg.innerHTML = `
+  <img src=${student_pic} width='100' heigh='100'/>
+  `;
+
+        var tdEleName = document.createElement("td");
+        tdEleName.innerHTML = student_name;
+
+        var tdEleSec = document.createElement("td");
+        tdEleSec.innerHTML = student_section;
+
+        rowEle.appendChild(tdEleImg);
+        rowEle.appendChild(tdEleName);
+        rowEle.appendChild(tdEleSec);
+
+        tab.appendChild(rowEle);
+        //create row element end
+      }
+
+      function clear(){
+        var tab = document.getElementById("studentTable");
+        var doms = tab.children;
+        console.log(doms)
+        for(var i=0;i<doms.length-1;i++){
+            var target = doms[i+1];
+            tab.removeChild(target);
+        }
+        if(doms[1])
+        tab.removeChild(doms[1]);
+        list();
+      }
+
+      function list() {
+        db.transaction(function (tsx) {
+          tsx.executeSql("select * from students", [], function (tsx, results) {
+            var tab = document.getElementById("studentTable");
+            for (var i = 0; i < results.rows.length; i++) {
+              var data = results.rows.item(i);
+              //create row element start
+              var rowEle = document.createElement("tr");
+              var tdEleImg = document.createElement("td");
+              tdEleImg.innerHTML = `
+  <img src=${data.img} width='100' heigh='100'/>
+  `;
+
+              var tdEleName = document.createElement("td");
+              tdEleName.innerHTML = data.name;
+
+              var tdEleSec = document.createElement("td");
+              tdEleSec.innerHTML = data.section;
+
+              var tdAction = document.createElement("td");
+              var delBtn = document.createElement("button");
+            //   delBtn.attributes.value = data.name;
+              delBtn.value=data.name;
+              delBtn.classList.add("btn");
+              delBtn.classList.add("btn-danger");
+              delBtn.classList.add("btn-sm");
+              delBtn.innerHTML = "Delete-"+data.name;
+              delBtn.addEventListener("click", function (evt) {
+                removeRecord(this.value);
+                rowEle.remove();
+              });
+              tdAction.appendChild(delBtn);
+              // tdAction.innerHTML = "<button onclick='delRecord("+data.name+")' class='btn btn-sm btn-danger'>Delete</button>";
+
+              rowEle.appendChild(tdEleImg);
+              rowEle.appendChild(tdEleName);
+              rowEle.appendChild(tdEleSec);
+              rowEle.appendChild(tdAction);
+
+              tab.appendChild(rowEle);
+              //create row element end
+            }
+          });
+        });
+      }
+
+      function clearFields() {
+        document.getElementById("student_name").value = "";
+        document.getElementById("student_section").value = "";
+        document.getElementById("student_pic").value = "";
+      }
+    </script>
+  </body>
+</html>
