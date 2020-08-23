@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <script>
+      var w;
+      function startWorker(){
+      if (typeof Worker !== "undefined") {
+        console.log("Browser support the web worker");
+        if (typeof w === "undefined") {
+          w = new Worker("complex.js");
+          w.onmessage = function (res) {
+            document.getElementById("cal").innerHTML = res.data;
+          };
+        }
+      } else {
+        console.log("Browser do not support the web worker");
+      }
+    }
+      function myAlert() {
+        alert("Main thread is healthy!");
+      }
+    </script>
+  </head>
+  <body>
+    The calculation is : <span id="cal"></span>
+    <hr />
+    <button onclick="myAlert()">Alert Now</button> | 
+    <button onclick="startWorker()">Calculate Complex </button>
+  </body>
+</html>
